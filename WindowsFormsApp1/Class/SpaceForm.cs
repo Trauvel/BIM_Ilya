@@ -4,6 +4,7 @@ using Autodesk.Revit.UI;
 using System.Runtime.InteropServices;
 using System;
 using System.Windows.Forms;
+using System.Collections.Generic; // Added for Queue
 
 namespace WindowsFormsApp1.Class
 {
@@ -28,6 +29,12 @@ namespace WindowsFormsApp1.Class
         private readonly System.Windows.Forms.TextBox txtCleanliness;
         private readonly System.Windows.Forms.TextBox txtHeatLoss;
         private readonly Element _space;
+        
+        // Флаг для отслеживания необходимости сохранения
+        private bool _needsSave = false;
+        
+        // Статическая очередь для отложенных сохранений
+        private static readonly Queue<Action> _pendingSaves = new Queue<Action>();
 
         public SpaceForm(Element space)
         {
@@ -40,8 +47,35 @@ namespace WindowsFormsApp1.Class
 
             FormClosing += (s, e) =>
             {
-                SaveSpaceParameters();
-                UpdateSpaceParameters.Calculate(space);
+                _needsSave = true;
+                
+                try
+                {
+                    // Сначала пробуем сохранить сразу
+                    if (!_space.Document.IsReadOnly)
+                    {
+                        SaveAndCalculateParameters();
+                        _needsSave = false;
+                    }
+                    else
+                    {
+                        TaskDialog.Show("Предупреждение", "Документ доступен только для чтения. Изменения будут сохранены позже.");
+                    }
+                }
+                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                {
+                    TaskDialog.Show("Информация", "Документ заблокирован. Изменения будут сохранены позже.");
+                }
+                catch (Exception ex)
+                {
+                    TaskDialog.Show("Ошибка", $"Произошла ошибка при сохранении: {ex.Message}\nИзменения будут сохранены позже.");
+                }
+                
+                // Если сохранение не удалось, добавляем в очередь отложенных сохранений
+                if (_needsSave)
+                {
+                    _pendingSaves.Enqueue(() => SaveAndCalculateParameters());
+                }
             };
 
             KeyPreview = true;
@@ -106,28 +140,83 @@ namespace WindowsFormsApp1.Class
             txtHeatLoss.Text = GetStringParameterValue(space, "Теплопотери");
         }
 
-        private void SaveSpaceParameters()
+        private void SaveAndCalculateParameters()
         {
             using (Transaction transaction = new Transaction(_space.Document, "Update Space Parameters"))
             {
-                transaction.Start();
-                SetParameterValue(_space, "Приток", txtVentilation.Text);
-                SetParameterValue(_space, "Вытяжка", txtIntake.Text);
-                //SetParameterValue(_space, "Кратность", chkMultiplicity.Checked ? "1" : "0");
-                SetParameterValue(_space, "П_Крат", txtP_Multiplicity.Text);
-                SetParameterValue(_space, "В_Крат", txtV_Multiplicity.Text);
-                //SetParameterValue(_space, "Человеки", chkPeople.Checked ? "1" : "0");
-                SetParameterValue(_space, "Норма", txtStandard.Text);
-                SetParameterValue(_space, "П_КолЧел", txtP_KolPeople.Text);
-                SetParameterValue(_space, "В_КолЧел", txtV_KolPeople.Text);
-                SetParameterValue(_space, "Номер", txtNumber.Text);
-                SetParameterValue(_space, "Имя", txtName.Text);
-                SetParameterValue(_space, "Смещение сверху", txtOffset.Text, UnitTypeId.Millimeters);
-                SetParameterValue(_space, "ADSK_Категория помещения", txtCategory.Text);
-                SetParameterValue(_space, "ADSK_Температура в помещении", txtTemperature.Text, UnitTypeId.Celsius);
-                SetParameterValue(_space, "Категория_помещения_по_чистоте", txtCleanliness.Text);
-                SetParameterValue(_space, "Теплопотери", txtHeatLoss.Text);
-                transaction.Commit();
+                try
+                {
+                    transaction.Start();
+
+                    // Сохраняем параметры
+                    SetParameterValue(_space, "Приток", txtVentilation.Text);
+                    SetParameterValue(_space, "Вытяжка", txtIntake.Text);
+                    SetParameterValue(_space, "П_Крат", txtP_Multiplicity.Text);
+                    SetParameterValue(_space, "В_Крат", txtV_Multiplicity.Text);
+                    SetParameterValue(_space, "Норма", txtStandard.Text);
+                    SetParameterValue(_space, "П_КолЧел", txtP_KolPeople.Text);
+                    SetParameterValue(_space, "В_КолЧел", txtV_KolPeople.Text);
+                    SetParameterValue(_space, "Номер", txtNumber.Text);
+                    SetParameterValue(_space, "Имя", txtName.Text);
+                    SetParameterValue(_space, "Смещение сверху", txtOffset.Text, UnitTypeId.Millimeters);
+                    SetParameterValue(_space, "ADSK_Категория помещения", txtCategory.Text);
+                    SetParameterValue(_space, "ADSK_Температура в помещении", txtTemperature.Text, UnitTypeId.Celsius);
+                    SetParameterValue(_space, "Категория_помещения_по_чистоте", txtCleanliness.Text);
+                    SetParameterValue(_space, "Теплопотери", txtHeatLoss.Text);
+
+                    // Пересчитываем параметры
+                    CalculateSpaceParameters(_space);
+
+                    transaction.Commit();
+                }
+                catch (Exception)
+                {
+                    transaction.RollBack();
+                    throw;
+                }
+            }
+        }
+
+        private void CalculateSpaceParameters(Element space)
+        {
+            double exhaustResult = GetParameterValue(space, "Вытяжка");
+            double supplyResult = GetParameterValue(space, "Приток");
+            
+            double volume = GetVolume(space);
+            double v_krat = GetParameterValue(space, "В_Крат");
+            double p_krat = GetParameterValue(space, "П_Крат");
+            double v_kolChel = GetParam(space, "В_КолЧел");
+            double p_kolChel = GetParam(space, "П_КолЧел");
+            int norm = GetParam(space, "Норма");
+
+            if (volume != 0)
+            {
+                if (v_krat != 0 && exhaustResult == 0)
+                {
+                    exhaustResult = RoundToNearestMultipleOfFive(volume * v_krat);
+                    SetParameterValue(space, "Вытяжка", exhaustResult.ToString());
+                }
+
+                if (p_krat != 0 && supplyResult == 0)
+                {
+                    supplyResult = RoundToNearestMultipleOfFive(volume * p_krat);
+                    SetParameterValue(space, "Приток", supplyResult.ToString());
+                }
+            }
+            
+            if (norm != 0)
+            {
+                if (v_kolChel != 0 && exhaustResult == 0)
+                {
+                    exhaustResult = RoundToNearestMultipleOfFive(norm * v_kolChel);
+                    SetParameterValue(space, "Вытяжка", exhaustResult.ToString());
+                }
+
+                if (p_kolChel != 0 && supplyResult == 0)
+                {
+                    supplyResult = RoundToNearestMultipleOfFive(norm * p_kolChel);
+                    SetParameterValue(space, "Приток", supplyResult.ToString());
+                }
             }
         }
 
@@ -303,6 +392,67 @@ namespace WindowsFormsApp1.Class
             public int Top;
             public int Right;
             public int Bottom;
+        }
+
+        // Вспомогательные методы для расчета
+        private static double GetParameterValue(Element space, string paramName)
+        {
+            Parameter param = space.LookupParameter(paramName);
+            if (param != null && param.HasValue)
+            {
+                return param.StorageType == StorageType.Double ? UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.CubicMeters) : param.AsDouble();
+            }
+            return 0;
+        }
+
+        private static double GetVolume(Element space)
+        {
+            Parameter volumeParam = space.LookupParameter("Объем");
+            return volumeParam != null && volumeParam.HasValue ? UnitUtils.ConvertFromInternalUnits(volumeParam.AsDouble(), UnitTypeId.CubicMeters) : 0;
+        }
+
+        private static int GetParam(Element space, string key)
+        {
+            Parameter normParam = space.LookupParameter(key);
+            if (normParam != null && normParam.HasValue)
+            {
+                int normParamInt = (int)double.Parse(normParam.AsValueString().Replace(" м³", ""), System.Globalization.CultureInfo.InvariantCulture);
+                return normParamInt;
+            }
+            return 40; // Значение по умолчанию - 40
+        }
+
+        private static int RoundToNearestMultipleOfFive(double value)
+        {
+            return (int)(Math.Round(value / 5.0) * 5);
+        }
+
+        // Статический метод для обработки отложенных сохранений
+        public static void ProcessPendingSaves()
+        {
+            int processedCount = 0;
+            int maxAttempts = 10; // Ограничиваем количество попыток
+            
+            while (_pendingSaves.Count > 0 && processedCount < maxAttempts)
+            {
+                try
+                {
+                    var saveAction = _pendingSaves.Dequeue();
+                    saveAction();
+                    processedCount++;
+                }
+                catch (Autodesk.Revit.Exceptions.InvalidOperationException)
+                {
+                    // Если документ заблокирован, оставляем сохранение в очереди
+                    // и попробуем позже
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Ошибка при отложенном сохранении: {ex.Message}");
+                    processedCount++;
+                }
+            }
         }
     }
 }

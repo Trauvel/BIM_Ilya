@@ -79,7 +79,7 @@ namespace WindowsFormsApp1.Class
             double totalExhaust = GetTotalExhaustAir(zone);
             txtTotalSupplyAir.Text = totalSupply.ToString("F2");
             txtTotalExhaustAir.Text = totalExhaust.ToString("F2");
-            txtAirDifference.Text = (totalSupply - totalExhaust).ToString("F2");
+            txtAirDifference.Text = (totalExhaust - totalSupply).ToString("F2");
 
             LoadSpacesListView(zone);
         }

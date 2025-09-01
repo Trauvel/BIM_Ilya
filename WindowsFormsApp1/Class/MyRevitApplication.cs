@@ -14,15 +14,14 @@ namespace WindowsFormsApp1.Class
     public class MyRevitApplication : IExternalApplication
     {
         private readonly ICollection<ElementId> _previousSelection = new List<ElementId>();
-        //private int _idleCounter = 0;
-        //private const int IdleFrequency = 10;
         private ElementId _lastClickedElementId = null;
+        private static DoubleClickTracker _doubleClickTracker;
 
         public Result OnStartup(UIControlledApplication application)
         {
             try
             {
-                string tabName = "Для Илюши";
+                string tabName = "I.L.U.S.H.A.";
 
                 try
                 {
@@ -33,7 +32,7 @@ namespace WindowsFormsApp1.Class
                     TaskDialog.Show("Title", ex.Message);
                 }
 
-                string panelName = "Название";
+                string panelName = "Intelligent Library for Unified Smart Handling Automation";
                 RibbonPanel panel = application.GetRibbonPanels(tabName).FirstOrDefault(p => p.Name == panelName) ?? application.CreateRibbonPanel(tabName, panelName);
 
                 PushButtonData buttonData = new PushButtonData(
@@ -48,6 +47,9 @@ namespace WindowsFormsApp1.Class
                 application.ControlledApplication.DocumentOpened += OnDocumentOpened;
                 application.Idling += OnIdling;
 
+                // Инициализируем трекер двойного клика
+                _doubleClickTracker = new DoubleClickTracker();
+                
                 return Result.Succeeded;
             }
             catch (Exception ex)
@@ -59,82 +61,112 @@ namespace WindowsFormsApp1.Class
 
         public Result OnShutdown(UIControlledApplication application)
         {
-            application.ControlledApplication.DocumentOpened -= OnDocumentOpened;
-            application.Idling -= OnIdling;
-            DoubleClickTracker.Stop();
-            return Result.Succeeded;
+            try
+            {
+                // Отписываемся от событий
+                application.ControlledApplication.DocumentOpened -= OnDocumentOpened;
+                application.Idling -= OnIdling;
+                
+                // Останавливаем трекер двойного клика
+                DoubleClickTracker.Stop();
+                
+                // Освобождаем ресурсы
+                _doubleClickTracker?.Dispose();
+                _doubleClickTracker = null;
+                
+                return Result.Succeeded;
+            }
+            catch (Exception ex)
+            {
+                // Логируем ошибку, но не показываем диалог при закрытии
+                System.Diagnostics.Debug.WriteLine($"Ошибка при закрытии приложения: {ex.Message}");
+                return Result.Failed;
+            }
         }
 
         private void OnDocumentOpened(object sender, Autodesk.Revit.DB.Events.DocumentOpenedEventArgs e)
         {
-            DoubleClickTracker.Start();
+            try
+            {
+                DoubleClickTracker.Start();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при открытии документа: {ex.Message}");
+            }
         }
 
         private void OnIdling(object sender, Autodesk.Revit.UI.Events.IdlingEventArgs e)
         {
-            //_idleCounter++;
-            //if (_idleCounter < IdleFrequency)
-            //{
-            //    return;
-            //}
-            //_idleCounter = 0;
-
-            UIApplication uiapp = sender as UIApplication;
-            UIDocument uidoc = uiapp?.ActiveUIDocument;
-
-            if (uidoc != null)
+            try
             {
-                Selection selection = uidoc.Selection;
-                ICollection<ElementId> currentSelection = selection.GetElementIds();
-                GlobalSettings.CurrentSelection = currentSelection;
+                // Обрабатываем отложенные сохранения
+                SpaceForm.ProcessPendingSaves();
 
-                if (currentSelection.Count == 1)
+                UIApplication uiapp = sender as UIApplication;
+                UIDocument uidoc = uiapp?.ActiveUIDocument;
+
+                if (uidoc != null)
                 {
-                    ElementId currentElementId = currentSelection.First();
+                    Selection selection = uidoc.Selection;
+                    ICollection<ElementId> currentSelection = selection.GetElementIds();
+                    GlobalSettings.CurrentSelection = currentSelection;
 
-                    if (_lastClickedElementId != null && _lastClickedElementId == currentElementId && GlobalSettings.IsDoubleClick)
+                    if (currentSelection.Count == 1)
                     {
-                        Element element = uidoc.Document.GetElement(currentElementId);
-                        if (element.Category != null)
-                        {
-                            if (element.Category.Id.Value == (int)BuiltInCategory.OST_MEPSpaces)
-                            {
-                                try
-                                {
-                                    CreateSpaceForm(element, uiapp);
-                                    GlobalSettings.IsDoubleClick = false;
-                                }
-                                catch (Exception ex)
-                                {
-                                    TaskDialog.Show("Title", ex.Message);
-                                }
-                            }
+                        ElementId currentElementId = currentSelection.First();
 
-                            if (element.Category.Id.Value == (int)BuiltInCategory.OST_HVAC_Zones && element is Zone zone)
+                        if (_lastClickedElementId != null && _lastClickedElementId == currentElementId && GlobalSettings.IsDoubleClick)
+                        {
+                            Element element = uidoc.Document.GetElement(currentElementId);
+                            if (element.Category != null)
                             {
-                                try
+                                if (element.Category.Id.Value == (int)BuiltInCategory.OST_MEPSpaces)
                                 {
-                                    CreateZoneForm(zone, uiapp);
-                                    GlobalSettings.IsDoubleClick = false;
+                                    try
+                                    {
+                                        CreateSpaceForm(element, uiapp);
+                                        GlobalSettings.IsDoubleClick = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        TaskDialog.Show("Title", ex.Message);
+                                    }
                                 }
-                                catch (Exception ex)
+
+                                if (element.Category.Id.Value == (int)BuiltInCategory.OST_HVAC_Zones && element is Zone zone)
                                 {
-                                    TaskDialog.Show("Title", ex.Message);
+                                    try
+                                    {
+                                        CreateZoneForm(zone, uiapp);
+                                        GlobalSettings.IsDoubleClick = false;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        TaskDialog.Show("Title", ex.Message);
+                                    }
                                 }
                             }
                         }
-                    }
-                    else
-                    {
-                        GlobalSettings.IsDoubleClick = false;
-                    }
+                        else
+                        {
+                            GlobalSettings.IsDoubleClick = false;
+                        }
 
-                    _lastClickedElementId = currentElementId;
+                        _lastClickedElementId = currentElementId;
+                    }
+                    else if (currentSelection.Count == 0)
+                    {
+                        _previousSelection.Clear();
+                    }
                 }
-                else if (currentSelection.Count == 0)
-                {
-                    _previousSelection.Clear();
-                }
+                
+                // Сбрасываем флаг активности Revit при каждом событии Idling
+                DoubleClickTracker.ResetRevitActiveFlag();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка в OnIdling: {ex.Message}");
             }
         }
 
