@@ -34,11 +34,11 @@ namespace WindowsFormsApp1.Class
         private readonly Element _space;
         
         // Новые поля для пользовательских параметров
-        private System.Windows.Forms.GroupBox customParametersGroup;
-        private System.Windows.Forms.Button addCustomParameterButton;
+        private readonly GroupBox customParametersGroup;
+        private Button addCustomParameterButton;
         private System.Windows.Forms.ComboBox parameterSelector;
-        private List<CustomParameterControl> customParameterControls;
-        private string customParametersConfigPath;
+        private readonly List<CustomParameterControl> customParameterControls;
+        private readonly string customParametersConfigPath;
         
         // Константы для компактного дизайна
         private const int MARGIN = 5;
@@ -121,33 +121,33 @@ namespace WindowsFormsApp1.Class
 
             // Левая колонка
             var otherParametersGroup = CreateCollapsibleGroupBox("Остальные параметры", leftColumn, 0);
-            txtNumber = CreateLabeledTextBox("Номер", otherParametersGroup, 0);
-            txtName = CreateLabeledTextBox("Имя", otherParametersGroup, 1);
-            txtArea = CreateLabeledTextBox("Площадь", otherParametersGroup, 2);
-            txtOffset = CreateLabeledTextBox("Смещение сверху", otherParametersGroup, 3);
-            txtVolume = CreateLabeledTextBox("Объем", otherParametersGroup, 4);
-            txtCategory = CreateLabeledTextBox("ADSK_Категория помещения", otherParametersGroup, 5);
-            txtTemperature = CreateLabeledTextBox("ADSK_Температура в помещении", otherParametersGroup, 6);
-            txtCleanliness = CreateLabeledTextBox("Категория_помещения_по_чистоте", otherParametersGroup, 7);
-            txtHeatLoss = CreateLabeledTextBox("Теплопотери", otherParametersGroup, 8);
+            txtNumber = CreateLabeledTextBox("Номер", otherParametersGroup, 0); //Текст
+            txtName = CreateLabeledTextBox("Имя", otherParametersGroup, 1); //Текст
+            txtArea = CreateLabeledTextBox("Площадь", otherParametersGroup, 2); //Площадь
+            txtOffset = CreateLabeledTextBox("Смещение сверху", otherParametersGroup, 3); //Длина
+            txtVolume = CreateLabeledTextBox("Объем", otherParametersGroup, 4); //Объем
+            txtCategory = CreateLabeledTextBox("ADSK_Категория помещения", otherParametersGroup, 5); //Текст
+            txtTemperature = CreateLabeledTextBox("ADSK_Температура в помещении", otherParametersGroup, 6); //Температура
+            txtCleanliness = CreateLabeledTextBox("Категория_помещения_по_чистоте", otherParametersGroup, 7); //Текст
+            txtHeatLoss = CreateLabeledTextBox("Теплопотери", otherParametersGroup, 8); //Текст
 
             var multiplicityGroup = CreateCollapsibleGroupBox("Кратность", leftColumn, 1);
-            txtP_Multiplicity = CreateLabeledTextBox("Приток кратность", multiplicityGroup, 0);
-            txtV_Multiplicity = CreateLabeledTextBox("Вытяжка кратность", multiplicityGroup, 1);
+            txtP_Multiplicity = CreateLabeledTextBox("Приток кратность", multiplicityGroup, 0); //Объем
+            txtV_Multiplicity = CreateLabeledTextBox("Вытяжка кратность", multiplicityGroup, 1); //Объем
 
             var peopleGroup = CreateCollapsibleGroupBox("Количество человек", leftColumn, 2);
-            txtStandard = CreateLabeledTextBox("Норма", peopleGroup, 0);
-            txtP_KolPeople = CreateLabeledTextBox("Приток кол-во человек", peopleGroup, 1);
-            txtV_KolPeople = CreateLabeledTextBox("Вытяжка кол-во человек", peopleGroup, 2);
+            txtStandard = CreateLabeledTextBox("Норма", peopleGroup, 0); //Объем
+            txtP_KolPeople = CreateLabeledTextBox("Приток кол-во человек", peopleGroup, 1); //Объем
+            txtV_KolPeople = CreateLabeledTextBox("Вытяжка кол-во человек", peopleGroup, 2); //Объем
 
             // Правая колонка
             var ventilationGroup = CreateCollapsibleGroupBox("Вентиляция", rightColumn, 0);
-            txtVentilation = CreateLabeledTextBox("Приток", ventilationGroup, 0);
-            txtIntake = CreateLabeledTextBox("Вытяжка", ventilationGroup, 1);
+            txtVentilation = CreateLabeledTextBox("Приток", ventilationGroup, 0); //Объем
+            txtIntake = CreateLabeledTextBox("Вытяжка", ventilationGroup, 1); //Объем
 
             var systemNameGroup = CreateCollapsibleGroupBox("Имя системы", rightColumn, 1);
-            txtSystemNameVentilation = CreateLabeledTextBox("Приток", systemNameGroup, 0);
-            txtSystemNameIntake = CreateLabeledTextBox("Вытяжка", systemNameGroup, 1);
+            txtSystemNameVentilation = CreateLabeledTextBox("Приток", systemNameGroup, 0); //Текст
+            txtSystemNameIntake = CreateLabeledTextBox("Вытяжка", systemNameGroup, 1); //Текст
 
             // Создаем группу для пользовательских параметров
             customParametersGroup = CreateCustomParametersGroup(rightColumn, 2);
@@ -182,23 +182,23 @@ namespace WindowsFormsApp1.Class
             Height = 700;
         }
 
-        private System.Windows.Forms.GroupBox CreateCollapsibleGroupBox(string title, System.Windows.Forms.Panel parent, int groupIndex)
+        private GroupBox CreateCollapsibleGroupBox(string title, System.Windows.Forms.Panel parent, int groupIndex)
         {
             // Временно создаем группу с минимальной высотой
-            var groupBox = new System.Windows.Forms.GroupBox
+            var groupBox = new GroupBox
             {
                 Text = title,
                 Location = new System.Drawing.Point(0, 0), // Временная позиция
-                Size = new System.Drawing.Size(COLUMN_WIDTH - MARGIN * 2, GROUP_HEADER_HEIGHT),
+                Size = new Size(COLUMN_WIDTH - MARGIN * 2, GROUP_HEADER_HEIGHT),
                 Padding = new Padding(GROUP_PADDING),
                 Tag = groupIndex
             };
 
             // Добавляем кнопку сворачивания/разворачивания
-            var toggleButton = new System.Windows.Forms.Button
+            var toggleButton = new Button
             {
                 Text = "▼",
-                Size = new System.Drawing.Size(20, 20),
+                Size = new Size(20, 20),
                 Location = new System.Drawing.Point(groupBox.Width - 25, 2),
                 FlatStyle = FlatStyle.Flat,
                 Tag = groupBox
@@ -216,10 +216,10 @@ namespace WindowsFormsApp1.Class
             int currentY = 0;
             
             // Сортируем группы по индексу
-            var groups = new List<System.Windows.Forms.GroupBox>();
+            var groups = new List<GroupBox>();
             foreach (System.Windows.Forms.Control control in column.Controls)
             {
-                if (control is System.Windows.Forms.GroupBox groupBox)
+                if (control is GroupBox groupBox)
                 {
                     groups.Add(groupBox);
                 }
@@ -241,7 +241,7 @@ namespace WindowsFormsApp1.Class
             }
         }
 
-        private void ToggleGroup(System.Windows.Forms.GroupBox groupBox, System.Windows.Forms.Button toggleButton)
+        private void ToggleGroup(GroupBox groupBox, Button toggleButton)
         {
             bool isCollapsed = groupBox.Height <= GROUP_HEADER_HEIGHT;
             
@@ -274,14 +274,13 @@ namespace WindowsFormsApp1.Class
             }
 
             // Пересчитываем позиции всех групп в колонке
-            var parent = groupBox.Parent as System.Windows.Forms.Panel;
-            if (parent != null)
+            if (groupBox.Parent is System.Windows.Forms.Panel parent)
             {
                 RecalculateAllGroupPositions(parent);
             }
         }
 
-        private int CalculateGroupContentHeight(System.Windows.Forms.GroupBox groupBox)
+        private int CalculateGroupContentHeight(GroupBox groupBox)
         {
             int maxBottom = 0;
             foreach (System.Windows.Forms.Control control in groupBox.Controls)
@@ -294,14 +293,14 @@ namespace WindowsFormsApp1.Class
             return maxBottom + GROUP_PADDING;
         }
 
-        private System.Windows.Forms.TextBox CreateLabeledTextBox(string labelText, System.Windows.Forms.GroupBox parent, int rowIndex)
+        private System.Windows.Forms.TextBox CreateLabeledTextBox(string labelText, GroupBox parent, int rowIndex)
         {
             // Создаем Label
-            var label = new System.Windows.Forms.Label
+            var label = new Label
             {
                 Text = labelText,
                 Location = new System.Drawing.Point(GROUP_PADDING, GROUP_HEADER_HEIGHT + rowIndex * (LABEL_HEIGHT + ROW_SPACING)),
-                Size = new System.Drawing.Size(LABEL_WIDTH, LABEL_HEIGHT),
+                Size = new Size(LABEL_WIDTH, LABEL_HEIGHT),
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
@@ -309,7 +308,7 @@ namespace WindowsFormsApp1.Class
             var textBox = new System.Windows.Forms.TextBox
             {
                 Location = new System.Drawing.Point(GROUP_PADDING + LABEL_WIDTH + 5, GROUP_HEADER_HEIGHT + rowIndex * (LABEL_HEIGHT + ROW_SPACING)),
-                Size = new System.Drawing.Size(TEXTBOX_WIDTH, TEXTBOX_HEIGHT),
+                Size = new Size(TEXTBOX_WIDTH, TEXTBOX_HEIGHT),
                 AutoSize = false,
                 Multiline = true,
                 WordWrap = true,
@@ -326,7 +325,7 @@ namespace WindowsFormsApp1.Class
 
             // Автоматически подстраиваем размер GroupBox
             int contentHeight = GROUP_HEADER_HEIGHT + (rowIndex + 1) * (LABEL_HEIGHT + ROW_SPACING) + GROUP_PADDING;
-            parent.Size = new System.Drawing.Size(parent.Width, contentHeight + GROUP_PADDING);
+            parent.Size = new Size(parent.Width, contentHeight + GROUP_PADDING);
 
             return textBox;
         }
@@ -354,37 +353,14 @@ namespace WindowsFormsApp1.Class
                     RepositionControlsBelowTextBox(textBox);
                     
                     // Пересчитываем размер GroupBox
-                    ResizeGroupBox(textBox.Parent as System.Windows.Forms.GroupBox);
-                }
-            }
-        }
-
-        private void RepositionControlsAfterTextBox(System.Windows.Forms.TextBox changedTextBox)
-        {
-            var parent = changedTextBox.Parent as System.Windows.Forms.GroupBox;
-            if (parent == null) return;
-
-            // Находим все элементы справа от измененного TextBox
-            foreach (System.Windows.Forms.Control control in parent.Controls)
-            {
-                if (control is System.Windows.Forms.TextBox textBox && 
-                    textBox != changedTextBox && 
-                    textBox.Location.X > changedTextBox.Location.X)
-                {
-                    // Сдвигаем элемент вправо на разницу в ширине
-                    int widthDifference = changedTextBox.Width - TEXTBOX_WIDTH;
-                    textBox.Location = new System.Drawing.Point(
-                        textBox.Location.X + widthDifference, 
-                        textBox.Location.Y
-                    );
+                    ResizeGroupBox(textBox.Parent as GroupBox);
                 }
             }
         }
 
         private void RepositionControlsBelowTextBox(System.Windows.Forms.TextBox changedTextBox)
         {
-            var parent = changedTextBox.Parent as System.Windows.Forms.GroupBox;
-            if (parent == null) return;
+            if (!(changedTextBox.Parent is GroupBox parent)) return;
 
             int heightDifference = changedTextBox.Height - TEXTBOX_HEIGHT;
             if (heightDifference == 0) return;
@@ -404,7 +380,7 @@ namespace WindowsFormsApp1.Class
             }
         }
 
-        private void ResizeGroupBox(System.Windows.Forms.GroupBox groupBox)
+        private void ResizeGroupBox(GroupBox groupBox)
         {
             if (groupBox == null) return;
 
@@ -420,8 +396,7 @@ namespace WindowsFormsApp1.Class
             groupBox.Height = newHeight;
 
             // Пересчитываем позиции всех групп в колонке
-            var column = groupBox.Parent as System.Windows.Forms.Panel;
-            if (column != null)
+            if (groupBox.Parent is System.Windows.Forms.Panel column)
             {
                 RecalculateAllGroupPositions(column);
             }
@@ -448,23 +423,27 @@ namespace WindowsFormsApp1.Class
                 {
                     transaction.Start();
 
-                    // Сохраняем стандартные параметры с учетом типов данных
-                    SetParameterValueWithType(_space, "Приток", txtVentilation.Text);
-                    SetParameterValueWithType(_space, "Вытяжка", txtIntake.Text);
-                    SetParameterValueWithType(_space, "П_ИмяСистемы", txtSystemNameVentilation.Text);
-                    SetParameterValueWithType(_space, "В_ИмяСистемы", txtSystemNameIntake.Text);
-                    SetParameterValueWithType(_space, "П_Крат", txtP_Multiplicity.Text);
-                    SetParameterValueWithType(_space, "В_Крат", txtV_Multiplicity.Text);
-                    SetParameterValueWithType(_space, "Норма", txtStandard.Text);
-                    SetParameterValueWithType(_space, "П_КолЧел", txtP_KolPeople.Text);
-                    SetParameterValueWithType(_space, "В_КолЧел", txtV_KolPeople.Text);
-                    SetParameterValueWithType(_space, "Номер", txtNumber.Text);
-                    SetParameterValueWithType(_space, "Имя", txtName.Text);
-                    SetParameterValueWithType(_space, "Смещение сверху", txtOffset.Text, UnitTypeId.Millimeters);
-                    SetParameterValueWithType(_space, "ADSK_Категория помещения", txtCategory.Text);
-                    SetParameterValueWithType(_space, "ADSK_Температура в помещении", txtTemperature.Text, UnitTypeId.Celsius);
-                    SetParameterValueWithType(_space, "Категория_помещения_по_чистоте", txtCleanliness.Text);
-                    SetParameterValueWithType(_space, "Теплопотери", txtHeatLoss.Text);
+                    // Текстовые параметры
+                    SetParameterValue(_space, "П_ИмяСистемы", txtSystemNameVentilation.Text);
+                    SetParameterValue(_space, "В_ИмяСистемы", txtSystemNameIntake.Text);
+                    SetParameterValue(_space, "Номер", txtNumber.Text);
+                    SetParameterValue(_space, "Имя", txtName.Text);
+                    SetParameterValue(_space, "ADSK_Категория помещения", txtCategory.Text);
+                    SetParameterValue(_space, "Категория_помещения_по_чистоте", txtCleanliness.Text);
+                    SetParameterValue(_space, "Теплопотери", txtHeatLoss.Text);
+
+                    // Все параметры типа "Объем" (м³/ч) - включая кратность
+                    SetParameterValue(_space, "Приток", txtVentilation.Text);
+                    SetParameterValue(_space, "Вытяжка", txtIntake.Text);
+                    SetParameterValue(_space, "П_Крат", txtP_Multiplicity.Text);
+                    SetParameterValue(_space, "В_Крат", txtV_Multiplicity.Text);
+                    SetParameterValue(_space, "Норма", txtStandard.Text);
+                    SetParameterValue(_space, "П_КолЧел", txtP_KolPeople.Text);
+                    SetParameterValue(_space, "В_КолЧел", txtV_KolPeople.Text);
+
+                    // Параметры с единицами измерения
+                    SetParameterValue(_space, "Смещение сверху", txtOffset.Text, UnitTypeId.Millimeters);
+                    SetParameterValue(_space, "ADSK_Температура в помещении", txtTemperature.Text, UnitTypeId.Celsius);
 
                     // Сохраняем пользовательские параметры
                     foreach (var customControl in customParameterControls)
@@ -484,156 +463,6 @@ namespace WindowsFormsApp1.Class
                 }
             }
         }
-
-        private void CalculateSpaceParameters(Element space)
-        {
-            try
-            {
-                double exhaustResult = GetParameterValue(space, "Вытяжка");
-                double supplyResult = GetParameterValue(space, "Приток");
-                
-                double volume = GetVolume(space);
-                double v_krat = GetParameterValue(space, "В_Крат");
-                double p_krat = GetParameterValue(space, "П_Крат");
-                double v_kolChel = GetParam(space, "В_КолЧел");
-                double p_kolChel = GetParam(space, "П_КолЧел");
-                int norm = GetParam(space, "Норма");
-
-                if (volume != 0)
-                {
-                    if (v_krat != 0 && exhaustResult == 0)
-                    {
-                        exhaustResult = RoundToNearestMultipleOfFive(volume * v_krat);
-                        SetParameterValue(space, "Вытяжка", exhaustResult.ToString());
-                    }
-
-                    if (p_krat != 0 && supplyResult == 0)
-                    {
-                        supplyResult = RoundToNearestMultipleOfFive(volume * p_krat);
-                        SetParameterValue(space, "Приток", supplyResult.ToString());
-                    }
-                }
-                
-                if (norm != 0)
-                {
-                    if (v_kolChel != 0 && exhaustResult == 0)
-                    {
-                        exhaustResult = RoundToNearestMultipleOfFive(norm * v_kolChel);
-                        SetParameterValue(_space, "Вытяжка", exhaustResult.ToString());
-                    }
-
-                    if (p_kolChel != 0 && supplyResult == 0)
-                    {
-                        supplyResult = RoundToNearestMultipleOfFive(norm * p_kolChel);
-                        SetParameterValue(_space, "Приток", supplyResult.ToString());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Ошибка при расчете параметров: {ex.Message}", ex);
-            }
-        }
-
-        private System.Windows.Forms.TextBox CreateTextBox(string label, int x, int y, System.Windows.Forms.Control parent)
-        {
-            var lbl = new Label
-            {
-                Text = label,
-                Location = new System.Drawing.Point(x, y),
-                AutoSize = true
-            };
-            parent.Controls.Add(lbl);
-
-            var txt = new System.Windows.Forms.TextBox
-            {
-                Location = new System.Drawing.Point(x + 200, y),
-                Width = 150
-            };
-            parent.Controls.Add(txt);
-
-            return txt;
-        }
-
-        //private CheckBox CreateCheckBox(string label, int x, int y, System.Windows.Forms.Control parent)
-        //{
-        //    var lbl = new Label
-        //    {
-        //        Text = label,
-        //        Location = new System.Drawing.Point(x, y),
-        //        AutoSize = true
-        //    };
-        //    parent.Controls.Add(lbl);
-
-        //    var chk = new CheckBox
-        //    {
-        //        Location = new System.Drawing.Point(x + 200, y),
-        //        AutoSize = true
-        //    };
-        //    parent.Controls.Add(chk);
-
-        //    return chk;
-        //}
-
-        private static double GetParameterValueInCelsius(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue && param.StorageType == StorageType.Double)
-            {
-                return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.Celsius);
-            }
-            return 0;
-        }
-
-        private static double GetParameterValueInSquareMeters(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue && param.StorageType == StorageType.Double)
-            {
-                return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.SquareMeters);
-            }
-            return 0;
-        }
-
-        private static double GetParameterValueInMillimeters(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue && param.StorageType == StorageType.Double)
-            {
-                return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.Millimeters);
-            }
-            return 0;
-        }
-
-        private static double GetParameterValueInCubicMeters(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue && param.StorageType == StorageType.Double)
-            {
-                return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.CubicMeters);
-            }
-            return 0;
-        }
-
-        private static string GetStringParameterValue(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue && param.StorageType == StorageType.String)
-            {
-                return param.AsString();
-            }
-            return string.Empty;
-        }
-
-        //private static bool GetBooleanParameterValue(Element space, string paramName)
-        //{
-        //    Parameter param = space.LookupParameter(paramName);
-        //    if (param != null && param.HasValue && param.StorageType == StorageType.Integer)
-        //    {
-        //        return param.AsInteger() == 1;
-        //    }
-        //    return false;
-        //}
 
         private static void SetParameterValue(Element space, string paramName, string value, ForgeTypeId unitTypeId = null)
         {
@@ -669,6 +498,70 @@ namespace WindowsFormsApp1.Class
             }
         }
 
+        private void CalculateSpaceParameters(Element space)
+        {
+            try
+            {
+                // Получаем значения в м³/ч
+                double exhaustResult = GetVolumeParameterValueAsDouble(space, "Вытяжка");
+                double supplyResult = GetVolumeParameterValueAsDouble(space, "Приток");
+                
+                double volume = GetVolume(space);
+                
+                // Получаем кратность в м³/ч (как параметры объема)
+                double v_krat = GetVolumeParameterValueAsDouble(space, "В_Крат");
+                double p_krat = GetVolumeParameterValueAsDouble(space, "П_Крат");
+                
+                // Получаем количество человек в м³/ч (как параметры объема)
+                double v_kolChel = GetVolumeParameterValueAsDouble(space, "В_КолЧел");
+                double p_kolChel = GetVolumeParameterValueAsDouble(space, "П_КолЧел");
+                double norm = GetVolumeParameterValueAsDouble(space, "Норма");
+
+                if (volume != 0)
+                {
+                    if (v_krat != 0 && exhaustResult == 0)
+                    {
+                        exhaustResult = RoundToNearestMultipleOfFive(volume * v_krat);
+                        SetVolumeParameterValue(space, "Вытяжка", exhaustResult.ToString("F0"));
+                    }
+
+                    if (p_krat != 0 && supplyResult == 0)
+                    {
+                        supplyResult = RoundToNearestMultipleOfFive(volume * p_krat);
+                        SetVolumeParameterValue(space, "Приток", supplyResult.ToString("F0"));
+                    }
+                }
+                
+                if (norm != 0)
+                {
+                    if (v_kolChel != 0 && exhaustResult == 0)
+                    {
+                        exhaustResult = RoundToNearestMultipleOfFive(norm * v_kolChel);
+                        SetVolumeParameterValue(space, "Вытяжка", exhaustResult.ToString("F0"));
+                    }
+
+                    if (p_kolChel != 0 && supplyResult == 0)
+                    {
+                        supplyResult = RoundToNearestMultipleOfFive(norm * p_kolChel);
+                        SetVolumeParameterValue(space, "Приток", supplyResult.ToString("F0"));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Ошибка при расчете параметров: {ex.Message}", ex);
+            }
+        }
+        private static string GetStringParameterValue(Element space, string paramName)
+        {
+            Parameter param = space.LookupParameter(paramName);
+            if (param != null && param.HasValue && param.StorageType == StorageType.String)
+            {
+                return param.AsString();
+            }
+            return string.Empty;
+        }
+
         public void CenterToRevitWindow(UIApplication uiapp)
         {
             IntPtr revitHandle = uiapp.MainWindowHandle;
@@ -692,32 +585,10 @@ namespace WindowsFormsApp1.Class
             public int Bottom;
         }
 
-        // Вспомогательные методы для расчета
-        private static double GetParameterValue(Element space, string paramName)
-        {
-            Parameter param = space.LookupParameter(paramName);
-            if (param != null && param.HasValue)
-            {
-                return param.StorageType == StorageType.Double ? UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.CubicMeters) : param.AsDouble();
-            }
-            return 0;
-        }
-
         private static double GetVolume(Element space)
         {
             Parameter volumeParam = space.LookupParameter("Объем");
             return volumeParam != null && volumeParam.HasValue ? UnitUtils.ConvertFromInternalUnits(volumeParam.AsDouble(), UnitTypeId.CubicMeters) : 0;
-        }
-
-        private static int GetParam(Element space, string key)
-        {
-            Parameter normParam = space.LookupParameter(key);
-            if (normParam != null && normParam.HasValue)
-            {
-                int normParamInt = (int)double.Parse(normParam.AsValueString().Replace(" м³", ""), System.Globalization.CultureInfo.InvariantCulture);
-                return normParamInt;
-            }
-            return 40;
         }
 
         private static int RoundToNearestMultipleOfFive(double value)
@@ -956,14 +827,14 @@ namespace WindowsFormsApp1.Class
         public class CustomParameterControl
         {
             public string ParameterName { get; private set; }
-            private Element _space;
-            private System.Windows.Forms.GroupBox _parent;
+            private readonly Element _space;
+            private readonly GroupBox _parent;
             private System.Windows.Forms.TextBox _textBox;
-            private System.Windows.Forms.Button _removeButton;
-            private System.Windows.Forms.Label _label;
+            private Button _removeButton;
+            private Label _label;
             private int _rowIndex;
 
-            public CustomParameterControl(string parameterName, Element space, System.Windows.Forms.GroupBox parent, int rowIndex)
+            public CustomParameterControl(string parameterName, Element space, GroupBox parent, int rowIndex)
             {
                 ParameterName = parameterName;
                 _space = space;
@@ -1063,8 +934,7 @@ namespace WindowsFormsApp1.Class
                     _parent.Controls.Remove(_label);
 
                     // Удаляем из списка в SpaceForm
-                    var spaceForm = _parent.Parent?.Parent as SpaceForm;
-                    if (spaceForm != null)
+                    if (_parent.Parent?.Parent is SpaceForm spaceForm)
                     {
                         spaceForm.RemoveCustomParameter(this);
                     }
@@ -1105,60 +975,56 @@ namespace WindowsFormsApp1.Class
             }
         }
 
-        // Новый метод для установки значений с учетом типов данных
-        private void SetParameterValueWithType(Element element, string paramName, string value, ForgeTypeId unitTypeId = null)
+        // Исправленный метод для загрузки параметров с правильными типами
+        private void LoadSpaceParameters(Element space)
+        {
+            try
+            {
+                // Текстовые параметры
+                txtSystemNameVentilation.Text = GetStringParameterValue(space, "П_ИмяСистемы");
+                txtSystemNameIntake.Text = GetStringParameterValue(space, "В_ИмяСистемы");
+                txtNumber.Text = GetStringParameterValue(space, "Номер");
+                txtName.Text = GetStringParameterValue(space, "Имя");
+                txtCategory.Text = GetStringParameterValue(space, "ADSK_Категория помещения");
+                txtCleanliness.Text = GetStringParameterValue(space, "Категория_помещения_по_чистоте");
+                txtHeatLoss.Text = GetStringParameterValue(space, "Теплопотери");
+
+                // Все параметры типа "Объем" (м³/ч) - включая кратность
+                txtVentilation.Text = GetParameterValueWithUnits(space, "Приток", UnitTypeId.CubicMeters).ToString("F2");
+                txtIntake.Text = GetParameterValueWithUnits(space, "Вытяжка", UnitTypeId.CubicMeters).ToString("F2");
+                txtP_Multiplicity.Text = GetParameterValueWithUnits(space, "П_Крат", UnitTypeId.CubicMeters).ToString("F2");
+                txtV_Multiplicity.Text = GetParameterValueWithUnits(space, "В_Крат", UnitTypeId.CubicMeters).ToString("F2");
+                txtStandard.Text = GetVolumeParameterValue(space, "Норма");
+                txtP_KolPeople.Text = GetParameterValueWithUnits(space, "П_КолЧел", UnitTypeId.CubicMeters).ToString("F2");
+                txtV_KolPeople.Text = GetParameterValueWithUnits(space, "В_КолЧел", UnitTypeId.CubicMeters).ToString("F2");
+
+                // Параметры с единицами измерения
+                txtArea.Text = GetParameterValueWithUnits(space, "Площадь", UnitTypeId.SquareMeters).ToString("F2");
+                txtOffset.Text = GetParameterValueWithUnits(space, "Смещение сверху", UnitTypeId.Millimeters).ToString("F2");
+                txtVolume.Text = GetParameterValueWithUnits(space, "Объем", UnitTypeId.CubicMeters).ToString("F2");
+                txtTemperature.Text = GetParameterValueWithUnits(space, "ADSK_Температура в помещении", UnitTypeId.Celsius).ToString("F2");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке параметров: {ex.Message}");
+            }
+        }
+
+        // Новый метод для сохранения параметров типа "Объем" (м³/ч)
+        private void SetVolumeParameterValue(Element element, string paramName, string value)
         {
             try
             {
                 Parameter param = element.LookupParameter(paramName);
                 if (param == null || param.IsReadOnly) return;
 
-                // Если значение пустое, не устанавливаем
                 if (string.IsNullOrWhiteSpace(value)) return;
 
-                switch (param.StorageType)
+                if (double.TryParse(value, out double doubleValue))
                 {
-                    case StorageType.Double:
-                        if (double.TryParse(value, out double doubleValue))
-                        {
-                            if (unitTypeId != null)
-                            {
-                                // Конвертируем в внутренние единицы Revit
-                                double internalValue = UnitUtils.ConvertToInternalUnits(doubleValue, unitTypeId);
-                                param.Set(internalValue);
-                            }
-                            else
-                            {
-                                // Пытаемся определить тип единиц из параметра
-                                ForgeTypeId paramUnitType = GetParameterUnitType(param);
-                                if (paramUnitType != null)
-                                {
-                                    double internalValue = UnitUtils.ConvertToInternalUnits(doubleValue, paramUnitType);
-                                    param.Set(internalValue);
-                                }
-                                else
-                                {
-                                    // Если тип единиц не определен, устанавливаем как есть
-                                    param.Set(doubleValue);
-                                }
-                            }
-                        }
-                        break;
-
-                    case StorageType.Integer:
-                        if (int.TryParse(value, out int intValue))
-                        {
-                            param.Set(intValue);
-                        }
-                        break;
-
-                    case StorageType.String:
-                        param.Set(value);
-                        break;
-
-                    case StorageType.ElementId:
-                        // Для параметров типа ElementId (если нужно)
-                        break;
+                    // Конвертируем из м³/ч в внутренние единицы Revit
+                    double internalValue = UnitUtils.ConvertToInternalUnits(doubleValue, UnitTypeId.CubicMetersPerHour);
+                    param.Set(internalValue);
                 }
             }
             catch (Exception ex)
@@ -1168,133 +1034,30 @@ namespace WindowsFormsApp1.Class
             }
         }
 
-        // Упрощенный и надежный метод для определения типа единиц параметра
-        private ForgeTypeId GetParameterUnitType(Parameter param)
+        // Новый метод для получения параметров типа "Объем" как double
+        private double GetVolumeParameterValueAsDouble(Element element, string paramName)
         {
             try
             {
-                // Получаем определение параметра
-                Definition definition = param.Definition;
-                if (definition == null) return null;
+                Parameter param = element.LookupParameter(paramName);
+                if (param == null || !param.HasValue) return 0;
 
-                // Определяем тип единиц по имени параметра (более надежный способ)
-                string paramName = definition.Name.ToLower();
-                
-                // Тепловые параметры
-                if (paramName.Contains("теплопотери") || paramName.Contains("heating") || 
-                    paramName.Contains("load") || paramName.Contains("тепловая") || 
-                    paramName.Contains("thermal") || paramName.Contains("adsk_теплопотери"))
+                if (param.StorageType == StorageType.Double)
                 {
-                    return UnitTypeId.Watts;
+                    // Конвертируем из внутренних единиц Revit в м³/ч
+                    return UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.CubicMetersPerHour);
                 }
-                
-                // Температурные параметры
-                if (paramName.Contains("температура") || paramName.Contains("temp") || 
-                    paramName.Contains("temperature") || paramName.Contains("adsk_температура"))
+                else if (param.StorageType == StorageType.Integer)
                 {
-                    return UnitTypeId.Celsius;
-                }
-                
-                // Воздушные потоки
-                if (paramName.Contains("приток") || paramName.Contains("вытяжка") || 
-                    paramName.Contains("airflow") || paramName.Contains("воздух") ||
-                    paramName.Contains("вентиляция") || paramName.Contains("supply") ||
-                    paramName.Contains("exhaust"))
-                {
-                    return UnitTypeId.CubicMetersPerSecond;
-                }
-                
-                // Площадь
-                if (paramName.Contains("площадь") || paramName.Contains("area"))
-                {
-                    return UnitTypeId.SquareMeters;
-                }
-                
-                // Объем
-                if (paramName.Contains("объем") || paramName.Contains("volume"))
-                {
-                    return UnitTypeId.CubicMeters;
-                }
-                
-                // Длина/высота/ширина/смещение
-                if (paramName.Contains("длина") || paramName.Contains("высота") || 
-                    paramName.Contains("ширина") || paramName.Contains("length") || 
-                    paramName.Contains("height") || paramName.Contains("width") ||
-                    paramName.Contains("смещение") || paramName.Contains("offset"))
-                {
-                    return UnitTypeId.Meters;
-                }
-                
-                // Кратность (обычно безразмерная)
-                if (paramName.Contains("кратность") || paramName.Contains("multiplicity") ||
-                    paramName.Contains("крат") || paramName.Contains("кр"))
-                {
-                    return null; // Безразмерная величина
-                }
-                
-                // Количество человек (безразмерная)
-                if (paramName.Contains("человек") || paramName.Contains("people") ||
-                    paramName.Contains("колчел") || paramName.Contains("чел"))
-                {
-                    return null; // Безразмерная величина
-                }
-                
-                // Норма (обычно м³/чел)
-                if (paramName.Contains("норма") || paramName.Contains("norm"))
-                {
-                    return UnitTypeId.CubicMeters;
+                    return param.AsInteger();
                 }
 
-                // Имена систем (строковые параметры)
-                if (paramName.Contains("имясистемы") || paramName.Contains("system") ||
-                    paramName.Contains("название") || paramName.Contains("name"))
-                {
-                    return null; // Строковый параметр
-                }
-
-                // Категории (строковые параметры)
-                if (paramName.Contains("категория") || paramName.Contains("category") ||
-                    paramName.Contains("чистота") || paramName.Contains("cleanliness"))
-                {
-                    return null; // Строковый параметр
-                }
-
-                return null;
+                return 0;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Ошибка при определении типа единиц параметра: {ex.Message}");
-                return null;
-            }
-        }
-
-        // Обновленный метод LoadSpaceParameters для корректного отображения значений
-        private void LoadSpaceParameters(Element space)
-        {
-            try
-            {
-                txtVentilation.Text = GetParameterValueWithUnits(space, "Приток", UnitTypeId.CubicMeters).ToString();
-                txtIntake.Text = GetParameterValueWithUnits(space, "Вытяжка", UnitTypeId.CubicMeters).ToString();
-                txtSystemNameVentilation.Text = GetStringParameterValue(space, "П_ИмяСистемы");
-                txtSystemNameIntake.Text = GetStringParameterValue(space, "В_ИмяСистемы");
-                txtP_Multiplicity.Text = GetParameterValueWithUnits(space, "П_Крат", UnitTypeId.CubicMeters).ToString();
-                txtV_Multiplicity.Text = GetParameterValueWithUnits(space, "В_Крат", UnitTypeId.CubicMeters).ToString();
-                txtStandard.Text = GetParameterValueWithUnits(space, "Норма", UnitTypeId.CubicMeters).ToString();
-                txtP_KolPeople.Text = GetParameterValueWithUnits(space, "П_КолЧел", UnitTypeId.CubicMeters).ToString();
-                txtV_KolPeople.Text = GetParameterValueWithUnits(space, "В_КолЧел", UnitTypeId.CubicMeters).ToString();
-                txtNumber.Text = GetStringParameterValue(space, "Номер");
-                txtName.Text = GetStringParameterValue(space, "Имя");
-                txtArea.Text = GetParameterValueWithUnits(space, "Площадь", UnitTypeId.SquareMeters).ToString("F2");
-                txtOffset.Text = GetParameterValueWithUnits(space, "Смещение сверху", UnitTypeId.Millimeters).ToString("F2");
-                txtVolume.Text = GetParameterValueWithUnits(space, "Объем", UnitTypeId.CubicMeters).ToString("F2");
-                txtCategory.Text = GetStringParameterValue(space, "ADSK_Категория помещения");
-                txtTemperature.Text = GetParameterValueWithUnits(space, "ADSK_Температура в помещении", UnitTypeId.Celsius).ToString("F2");
-                txtCleanliness.Text = GetStringParameterValue(space, "Категория_помещения_по_чистоте");
-                txtHeatLoss.Text = GetParameterValueWithUnits(space, "Теплопотери", UnitTypeId.Watts).ToString("F2");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Ошибка при загрузке параметров: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Ошибка при получении параметра {paramName}: {ex.Message}");
+                return 0;
             }
         }
 
@@ -1330,6 +1093,34 @@ namespace WindowsFormsApp1.Class
             {
                 System.Diagnostics.Debug.WriteLine($"Ошибка при получении значения параметра {paramName}: {ex.Message}");
                 return 0;
+            }
+        }
+
+        // Новый метод для получения параметров типа "Объем" (м³/ч)
+        private string GetVolumeParameterValue(Element element, string paramName)
+        {
+            try
+            {
+                Parameter param = element.LookupParameter(paramName);
+                if (param == null || !param.HasValue) return "0";
+
+                if (param.StorageType == StorageType.Double)
+                {
+                    // Конвертируем из внутренних единиц Revit в м³/ч
+                    double value = UnitUtils.ConvertFromInternalUnits(param.AsDouble(), UnitTypeId.CubicMetersPerHour);
+                    return value.ToString("F0"); // Целое число для кратности и количества
+                }
+                else if (param.StorageType == StorageType.Integer)
+                {
+                    return param.AsInteger().ToString();
+                }
+
+                return "0";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Ошибка при получении параметра {paramName}: {ex.Message}");
+                return "0";
             }
         }
     }
